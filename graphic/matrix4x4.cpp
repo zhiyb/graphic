@@ -41,6 +41,28 @@ void Matrix4x4::rotate(float angle, const Vector3D& vector)
 	(*this) *= Matrix4x4(m);
 }
 
+void Matrix4x4::scale(const Vector3D& v)
+{
+	float m[16] = {
+		v.x(), 0.f, 0.f, 0.f,
+		0.f, v.y(), 0.f, 0.f,
+		0.f, 0.f, v.z(), 0.f,
+		0.f, 0.f, 0.f, 1.f,
+	};
+	(*this) *= Matrix4x4(m);
+}
+
+void Matrix4x4::translate(const Vector3D& v)
+{
+	float m[16] = {
+		1.f, 0.f, 0.f, 0.f,
+		0.f, 1.f, 0.f, 0.f,
+		0.f, 0.f, 1.f, 0.f,
+		v.x(), v.y(), v.z(), 1.f,
+	};
+	(*this) *= Matrix4x4(m);
+}
+
 Matrix4x4& Matrix4x4::operator*=(const Matrix4x4& m)
 {
 	float v[16];
