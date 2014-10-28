@@ -17,14 +17,19 @@ public:
 	virtual bool valid(void) = 0;
 	inline int width(void) const {return buffer.width;}
 	inline int height(void) const {return buffer.height;}
-	inline uint32_t pointSize(void) const {return data.pointSize;}
-	inline void setPointSize(const uint32_t size) {data.pointSize = size;}
 	void drawArray(DrawModes mode, uint32_t first, uint32_t count);
 	void clear(void);
+
+	inline uint32_t pointSize(void) const {return data.pointSize;}
+	inline void setPointSize(const uint32_t size) {data.pointSize = size;}
 	inline Vector3D& vertex(const uint32_t index) {return vertices()[index];}
 	inline Vector3D& colour(const uint32_t index) {return colours()[index];}
 	inline std::vector<Vector3D>& vertices(void) {return data.vertices;}
 	inline std::vector<Vector3D>& colours(void) {return data.colours;}
+	const Matrix4x4& modelView(void) const {return data.modelView;}
+	const Matrix4x4& projection(void) const {return data.projection;}
+	void setModelView(const Matrix4x4& m) {data.modelView = m; data.updateMVP();}
+	void setProjection(const Matrix4x4& m) {data.projection = m; data.updateMVP();}
 
 protected:
 	struct Buffer {
