@@ -2,18 +2,18 @@
 
 Vector4D::Vector4D(float x, float y, float z, float w)
 {
-	data.x = x;
-	data.y = y;
-	data.z = z;
-	data.w = w;
+	vec[0] = x;
+	vec[1] = y;
+	vec[2] = z;
+	vec[3] = w;
 }
 
 Vector4D::Vector4D(const Vector3D& v, float w)
 {
-	data.x = v.x();
-	data.y = v.y();
-	data.z = v.z();
-	data.w = w;
+	vec[0] = v.x();
+	vec[1] = v.y();
+	vec[2] = v.z();
+	vec[3] = w;
 }
 
 Vector4D& Vector4D::operator+=(const Vector4D& vector)

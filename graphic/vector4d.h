@@ -10,19 +10,21 @@ class Vector4D;
 class Vector4D
 {
 public:
-	Vector4D(void) {data.x = 0; data.y = 0; data.z = 0; data.w = 1;}
+	Vector4D(void) {vec[0] = 0; vec[1] = 0; vec[2] = 0; vec[3] = 1;}
 	Vector4D(float x, float y, float z, float w);
 	Vector4D(const Vector3D& v, float w = 1.f);
-	inline float x(void) const {return data.x;}
-	inline float y(void) const {return data.y;}
-	inline float z(void) const {return data.z;}
-	inline float w(void) const {return data.w;}
-	inline void setX(float x) {data.x = x;}
-	inline void setY(float y) {data.y = y;}
-	inline void setZ(float z) {data.z = z;}
-	inline void setW(float w) {data.w = w;}
+	inline float x(void) const {return vec[0];}
+	inline float y(void) const {return vec[1];}
+	inline float z(void) const {return vec[2];}
+	inline float w(void) const {return vec[3];}
+	inline void setX(float x) {vec[0] = x;}
+	inline void setY(float y) {vec[1] = y;}
+	inline void setZ(float z) {vec[2] = z;}
+	inline void setW(float w) {vec[3] = w;}
 	inline uint32_t toColour(void) const;
 
+	float& operator[](int i) {return vec[i];}
+	const float& operator[](int i) const {return (*this)[i];}
 	Vector4D& operator+=(const Vector4D& vector);
 	Vector4D& operator-=(const Vector4D& vector);
 	Vector4D& operator*=(const Vector4D& vector);
@@ -31,9 +33,7 @@ public:
 	Vector4D& operator/=(float d);
 
 private:
-	struct {
-		float x, y, z, w;
-	} data;
+	float vec[4];
 };
 
 const Vector4D operator+(const Vector4D& v1, const Vector4D& v2);

@@ -2,21 +2,21 @@
 
 Vector3D::Vector3D(float x, float y, float z)
 {
-	data.x = x;
-	data.y = y;
-	data.z = z;
+	vec[0] = x;
+	vec[1] = y;
+	vec[2] = z;
 }
 
 Vector3D::Vector3D(const Vector4D& v)
 {
 	if (v.w() == 1) {
-		data.x = v.x();
-		data.y = v.y();
-		data.z = v.z();
+		vec[0] = v.x();
+		vec[1] = v.y();
+		vec[2] = v.z();
 	} else {
-		data.x = v.x() / v.w();
-		data.y = v.y() / v.w();
-		data.z = v.z() / v.w();
+		vec[0] = v.x() / v.w();
+		vec[1] = v.y() / v.w();
+		vec[2] = v.z() / v.w();
 	}
 }
 
