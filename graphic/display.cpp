@@ -76,18 +76,9 @@ void Display::drawArray(DrawModes mode, uint32_t first, uint32_t count)
 	}
 }
 
-#include <iostream>
 const Vector3D Display::map(const Vector4D& v)
 {
-	Vector3D vec(data.mvp * v);
-#if 0
-	for (int i = 0; i < 4; i++)
-		cout << data.mvp(i, 0) << ' ' << data.mvp(i, 1) << ' ' << data.mvp(i, 2) << ' ' << data.mvp(i, 3) << endl;
-	cout << v[0] << ' ' << v[1] << ' ' << v[2] << ' ' << v[3] << ' ' << endl;
-	cout << vec[0] << ' ' << vec[1] << ' ' << vec[2] << ' ' << endl;
-#endif
-	return vec;
-	//return Vector3D(data.mvp * v);
+	return Vector3D(data.mvp * v);
 }
 
 void Display::drawLine(uint32_t index)
