@@ -3,11 +3,16 @@
 
 #include <inttypes.h>
 
+class Vector3D;
+
+#include "vector4d.h"
+
 class Vector3D
 {
 public:
 	Vector3D(void) {data.x = 0; data.y = 0; data.z = 0;}
 	Vector3D(float x, float y, float z);
+	Vector3D(const Vector4D& v);
 	inline float x(void) const {return data.x;}
 	inline float y(void) const {return data.y;}
 	inline float z(void) const {return data.z;}

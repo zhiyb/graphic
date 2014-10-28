@@ -7,6 +7,19 @@ Vector3D::Vector3D(float x, float y, float z)
 	data.z = z;
 }
 
+Vector3D::Vector3D(const Vector4D& v)
+{
+	if (v.w() == 1) {
+		data.x = v.x();
+		data.y = v.y();
+		data.z = v.z();
+	} else {
+		data.x = v.x() / v.w();
+		data.y = v.y() / v.w();
+		data.z = v.z() / v.w();
+	}
+}
+
 Vector3D& Vector3D::operator+=(const Vector3D& vector)
 {
 	setX(x() + vector.x());

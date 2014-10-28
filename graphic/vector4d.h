@@ -2,6 +2,9 @@
 #define GRAPHIC_VECTOR4D
 
 #include <inttypes.h>
+
+class Vector4D;
+
 #include "vector3d.h"
 
 class Vector4D
