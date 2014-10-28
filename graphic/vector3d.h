@@ -20,6 +20,7 @@ public:
 	inline void setY(float y) {data.y = y;}
 	inline void setZ(float z) {data.z = z;}
 	inline uint32_t toColour(void) const;
+
 	Vector3D& operator+=(const Vector3D& vector);
 	Vector3D& operator-=(const Vector3D& vector);
 	Vector3D& operator*=(const Vector3D& vector);

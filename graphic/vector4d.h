@@ -22,6 +22,7 @@ public:
 	inline void setZ(float z) {data.z = z;}
 	inline void setW(float w) {data.w = w;}
 	inline uint32_t toColour(void) const;
+
 	Vector4D& operator+=(const Vector4D& vector);
 	Vector4D& operator-=(const Vector4D& vector);
 	Vector4D& operator*=(const Vector4D& vector);
