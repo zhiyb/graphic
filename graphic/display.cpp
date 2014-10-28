@@ -7,11 +7,20 @@ Display *display = 0;
 
 using namespace std;
 
+Display::Buffer::~Buffer(void)
+{
+	delete [] data;
+	delete [] depth;
+}
+
 void Display::Buffer::resize(const int w, const int h)
 {
 	width = w;
 	height = h;
-	data = new uint32_t[bytes() / 4];
+	delete [] data;
+	delete [] depth;
+	data = new uint32_t[bytes() / sizeof(uint32_t)];
+	depth = new float[bytes() / sizeof(uint32_t)];
 }
 
 Display::Display(const int width, const int height)
@@ -24,34 +33,59 @@ void Display::clear(void)
 	memset(buffer.data, 0, buffer.bytes());
 }
 
-inline void Display::plot(const uint32_t x, const uint32_t y, const uint32_t reverse)
+inline void Display::plot(uint32_t x, uint32_t y, bool reverse, float depth, const Vector3D& colour)
 {
-	if (reverse)
-		*(buffer.data + x * width() + y) = buffer.colour;
-	else
-		*(buffer.data + y * width() + x) = buffer.colour;
+	if (reverse) {
+		*(buffer.data + x * width() + y) = colour.toColour();
+		*(buffer.depth + x * width() + y) = depth;
+	} else {
+		*(buffer.data + y * width() + x) = colour.toColour();
+		*(buffer.depth + y * width() + x) = depth;
+	}
 }
 
-void Display::drawRectangle(const Vector3D& p, const Vector3D& s)
+void Display::drawPoint(uint32_t index)
 {
-	int x = p.x(), y = p.y(), w = s.x(), h = s.y();
-	for (int dy = 0; dy < h; dy++)
-		for (int dx = 0; dx < w; dx++)
-			*(buffer.data + (y + dy) * width() + x + dx) = buffer.colour;
+	int x = vertex(index).x(), y = vertex(index).y(), z = vertex(index).z();
+	uint32_t c = colour(index).toColour();
+	uint32_t s = pointSize();
+	for (uint32_t dy = 0; dy < s; dy++)
+		for (uint32_t dx = 0; dx < s; dx++)
+			if (x >= 0 && x < width() && y >= 0 && y < height()) {
+				*(buffer.depth + y * width() + x) = z;
+				*(buffer.data + y++ * width() + x++) = c;
+			}
 }
 
-void Display::drawPoint(const Vector3D& p, const uint32_t size)
+void Display::drawArray(DrawModes mode, uint32_t first, uint32_t count)
 {
-	drawRectangle(Vector3D(p.x() - size / 2, p.y() - size / 2, p.z()), Vector3D(size, size, 0));
+	switch (mode) {
+	case Points:
+		while (count--)
+			drawPoint(first++);
+		break;
+	case Lines:
+		for (;count > 1; count -= 2) {
+			drawLine(first);
+			first += 2;
+		}
+		break;
+	case Triangles:
+		;
+	}
 }
 
-void Display::drawLine(const Vector3D& p1, const Vector3D& p2)
+void Display::drawLine(uint32_t index)
 {
 	// Symmetric Double Step
-	int a1 = p1.x(), b1 = p1.y(), a2 = p2.x(), b2 = p2.y();
+	int a1 = vertex(index).x(), b1 = vertex(index).y();
+	int a2 = vertex(index + 1).x(), b2 = vertex(index + 1).y();
 	int dx, dy, incr1, incr2, d, x, y, xend, c, pixels_left;
 	int x1, y1;
 	int sign_x, sign_y, step, reverse, i;
+	int df, xs;
+	float z, dz;
+	Vector3D clr, dclr;
 
 	sign_x = (a2 - a1) < 0 ? -1 : 1;
 	dx = (a2 - a1) * sign_x;
@@ -78,26 +112,35 @@ void Display::drawLine(const Vector3D& p1, const Vector3D& p2)
 		y = b2;
 		x1 = a1;
 		y1 = b1;
+		z = vertex(index + 1).z();
+		dz = vertex(index).z() - z;
+		clr = colour(index + 1);
+		dclr = colour(index) - clr;
 	} else {
 		x = a1;
 		y = b1;
 		x1 = a2;
 		y1 = b2;
+		z = vertex(index).z();
+		dz = vertex(index + 1).z() - z;
+		clr = colour(index);
+		dclr = colour(index + 1) - clr;
 	}
 
 	// Note! dx = n implies 0 - n or (dx + 1) pixels to be set
 	// Go round loop dx / 4 times then plot last 0, 1, 2 or 3 pixels
 	// In fact (dx - 1) / 4 as 2 pixels are already plotted
 	xend = (dx - 1) / 4;
+	xs = x;
 	// Number of pixels left over at the end
 	pixels_left = (dx - 1) % 4;
-	plot(x, y, reverse);
+	plot(x, y, reverse, z, clr);
 	// Plot only one pixel for zero length vectors
 	if (pixels_left < 0)
 		return;
 
 	// Plot first two pints
-	plot(x1, y1, reverse);
+	plot(x1, y1, reverse, z + dz, clr + dclr);
 	incr2 = 4 * dy - 2 * dx;
 	// Slope less than 1/2
 	if (incr2 < 0) {
@@ -110,27 +153,39 @@ void Display::drawLine(const Vector3D& p1, const Vector3D& p2)
 			--x1;
 			if (d < 0) {
 				// Pattern 1 forwards
-				plot(x, y, reverse);
-				plot(++x, y, reverse);
+				df = x - xs;
+				plot(x, y, reverse, z + dz * df / dx, clr + dclr * df / dx);
+				df = ++x - xs;
+				plot(x, y, reverse, z + dz * df / dx, clr + dclr * df / dx);
 				// Pattern 1 backwards
-				plot(x1, y1, reverse);
-				plot(--x1, y1, reverse);
+				df = x1 - xs;
+				plot(x1, y1, reverse, z + dz * df / dx, clr + dclr * df / dx);
+				df = --x1 - xs;
+				plot(x1, y1, reverse, z + dz * df / dx, clr + dclr * df / dx);
 				d += incr1;
 			} else {
 				if (d < c) {
 					// Pattern 2 forwards
-					plot(x, y, reverse);
-					plot(++x, y += step, reverse);
+					df = x - xs;
+					plot(x, y, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					df = ++x - xs;
+					plot(x, y += step, reverse, z + dz * df / dx, clr + dclr * df / dx);
 					// Pattern 2 backwards
-					plot(x1, y1, reverse);
-					plot(--x1, y1 -= step, reverse);
+					df = x1 - xs;
+					plot(x1, y1, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					df = --x1 - xs;
+					plot(x1, y1 -= step, reverse, z + dz * df / dx, clr + dclr * df / dx);
 				} else {
 					// Pattern 3 forwards
-					plot(x, y += step, reverse);
-					plot(++x, y, reverse);
+					df = x - xs;
+					plot(x, y += step, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					df = ++x - xs;
+					plot(x, y, reverse, z + dz * df / dx, clr + dclr * df / dx);
 					// Pattern 3 backwards
-					plot(x1, y1 -= step, reverse);
-					plot(--x1, y1, reverse);
+					df = x1 - xs;
+					plot(x1, y1 -= step, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					df = --x1 - xs;
+					plot(x1, y1, reverse, z + dz * df / dx, clr + dclr * df / dx);
 				}
 				d += incr2;
 			}
@@ -140,26 +195,41 @@ void Display::drawLine(const Vector3D& p1, const Vector3D& p2)
 		if (pixels_left) {
 			if (d < 0) {
 				// Pattern 1
-				plot(++x, y, reverse);
-				if (pixels_left > 1)
-					plot(++x, y, reverse);
-				if (pixels_left > 2)
-					plot(--x1, y1, reverse);
+				df = ++x - xs;
+				plot(x, y, reverse, z + dz * df / dx, clr + dclr * df / dx);
+				if (pixels_left > 1) {
+					df = ++x - xs;
+					plot(x, y, reverse, z + dz * df / dx, clr + dclr * df / dx);
+				}
+				if (pixels_left > 2) {
+					df = --x1 - xs;
+					plot(x1, y1, reverse, z + dz * df / dx, clr + dclr * df / dx);
+				}
 			} else {
 				if (d < c) {
 					// Pattern 2
-					plot(++x, y, reverse);
-					if (pixels_left > 1)
-						plot(++x, y += step, reverse);
-					if (pixels_left > 2)
-						plot(--x1, y1, reverse);
+					df = ++x - xs;
+					plot(x, y, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					if (pixels_left > 1) {
+						df = ++x - xs;
+						plot(x, y += step, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					}
+					if (pixels_left > 2) {
+						df = --x1 - xs;
+						plot(x1, y1, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					}
 				} else {
 					// Pattern 3
-					plot(++x, y += step, reverse);
-					if (pixels_left > 1)
-						plot(++x, y, reverse);
-					if (pixels_left > 2)
-						plot(--x1, y1 -= step, reverse);
+					df = ++x - xs;
+					plot(x, y += step, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					if (pixels_left > 1) {
+						df = ++x - xs;
+						plot(x, y, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					}
+					if (pixels_left > 2) {
+						df = --x1 - xs;
+						plot(x1, y1 -= step, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					}
 				}
 			}
 		}
@@ -174,27 +244,39 @@ void Display::drawLine(const Vector3D& p1, const Vector3D& p2)
 			--x1;
 			if (d > 0) {
 				// Pattern 4 forwards
-				plot(x, y += step, reverse);
-				plot(++x, y += step, reverse);
+				df = x - xs;
+				plot(x, y += step, reverse, z + dz * df / dx, clr + dclr * df / dx);
+				df = ++x - xs;
+				plot(x, y += step, reverse, z + dz * df / dx, clr + dclr * df / dx);
 				// Pattern 4 backwards
-				plot(x1, y1 -= step, reverse);
-				plot(--x1, y1 -= step, reverse);
+				df = x1 - xs;
+				plot(x1, y1 -= step, reverse, z + dz * df / dx, clr + dclr * df / dx);
+				df = --x1 - xs;
+				plot(x1, y1 -= step, reverse, z + dz * df / dx, clr + dclr * df / dx);
 				d += incr1;
 			} else {
 				if (d < c) {
 					// Pattern 2 forwards
-					plot(x, y, reverse);
-					plot(++x, y += step, reverse);
+					df = x - xs;
+					plot(x, y, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					df = ++x - xs;
+					plot(x, y += step, reverse, z + dz * df / dx, clr + dclr * df / dx);
 					// Pattern 2 backwards
-					plot(x1, y1, reverse);
-					plot(--x1, y1 -= step, reverse);
+					df = x1 - xs;
+					plot(x1, y1, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					df = --x1 - xs;
+					plot(x1, y1 -= step, reverse, z + dz * df / dx, clr + dclr * df / dx);
 				} else {
 					// Pattern 3 forwards
-					plot(x, y += step, reverse);
-					plot(++x, y, reverse);
+					df = x - xs;
+					plot(x, y += step, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					df = ++x - xs;
+					plot(x, y, reverse, z + dz * df / dx, clr + dclr * df / dx);
 					// Pattern 3 backwards
-					plot(x1, y1 -= step, reverse);
-					plot(--x1, y1, reverse);
+					df = x1 - xs;
+					plot(x1, y1 -= step, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					df = --x1 - xs;
+					plot(x1, y1, reverse, z + dz * df / dx, clr + dclr * df / dx);
 				}
 				d += incr2;
 			}
@@ -204,29 +286,43 @@ void Display::drawLine(const Vector3D& p1, const Vector3D& p2)
 		if (pixels_left) {
 			if (d > 0) {
 				// Pattern 4
-				plot(++x, y += step, reverse);
-				if (pixels_left > 1)
-					plot(++x, y += step, reverse);
-				if (pixels_left > 2)
-					plot(--x1, y1 -= step, reverse);
+				df = ++x - xs;
+				plot(x, y += step, reverse, z + dz * df / dx, clr + dclr * df / dx);
+				if (pixels_left > 1) {
+					df = ++x - xs;
+					plot(x, y += step, reverse, z + dz * df / dx, clr + dclr * df / dx);
+				}
+				if (pixels_left > 2) {
+					df = --x1 - xs;
+					plot(x1, y1 -= step, reverse, z + dz * df / dx, clr + dclr * df / dx);
+				}
 			} else {
 				if (d < c) {
 					// Pattern 2
-					plot(++x, y, reverse);
-					if (pixels_left > 1)
-						plot(++x, y += step, reverse);
-					if (pixels_left > 2)
-						plot(--x1, y1, reverse);
+					df = ++x - xs;
+					plot(x, y, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					if (pixels_left > 1) {
+						df = ++x - xs;
+						plot(x, y += step, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					}
+					if (pixels_left > 2) {
+						df = --x1 - xs;
+						plot(x1, y1, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					}
 				} else {
 					// Pattern 3
-					plot(++x, y += step, reverse);
-					if (pixels_left > 1)
-						plot(++x, y, reverse);
+					df = ++x - xs;
+					plot(x, y += step, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					if (pixels_left > 1) {
+						df = ++x - xs;
+						plot(x, y, reverse, z + dz * df / dx, clr + dclr * df / dx);
+					}
 					if (pixels_left > 2) {
+						df = --x1 - xs;
 						if (d > c)	// Step 3
-							plot(--x1, y1 -= step, reverse);
+							plot(x1, y1 -= step, reverse, z + dz * df / dx, clr + dclr * df / dx);
 						else		// Step 2
-							plot(--x1, y1, reverse);
+							plot(x1, y1, reverse, z + dz * df / dx, clr + dclr * df / dx);
 					}
 				}
 			}
