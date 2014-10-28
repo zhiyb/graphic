@@ -6,7 +6,8 @@
 class Vector3D
 {
 public:
-	Vector3D(float x = 0.f, float y = 0.f, float z = 0.f);
+	Vector3D(void) {data.x = 0; data.y = 0; data.z = 0;}
+	Vector3D(float x, float y, float z);
 	inline float x(void) const {return data.x;}
 	inline float y(void) const {return data.y;}
 	inline float z(void) const {return data.z;}
