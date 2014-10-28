@@ -20,6 +20,8 @@ public:
 	inline void setY(float y) {vec[1] = y;}
 	inline void setZ(float z) {vec[2] = z;}
 	inline uint32_t toColour(void) const;
+	float length() const;
+	inline Vector3D normalized(void) const;
 
 	float& operator[](int i) {return vec[i];}
 	const float& operator[](int i) const {return vec[i];}
@@ -48,6 +50,11 @@ inline uint32_t Vector3D::toColour(void) const
 {
 	uint32_t r = 255 * x(), g = 255 * y(), b = 255 * z();
 	return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
+}
+
+inline Vector3D Vector3D::normalized(void) const
+{
+	return (*this) / length();
 }
 
 #endif

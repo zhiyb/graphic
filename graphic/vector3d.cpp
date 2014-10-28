@@ -1,4 +1,7 @@
+#include <cmath>
 #include "vector3d.h"
+
+using namespace std;
 
 Vector3D::Vector3D(float x, float y, float z)
 {
@@ -18,6 +21,11 @@ Vector3D::Vector3D(const Vector4D& v)
 		vec[1] = v.y() / v.w();
 		vec[2] = v.z() / v.w();
 	}
+}
+
+float Vector3D::length() const
+{
+	return sqrt(x() * x() + y() * y() + z() * z());
 }
 
 Vector3D& Vector3D::operator+=(const Vector3D& vector)
