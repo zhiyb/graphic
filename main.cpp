@@ -33,6 +33,9 @@ int main(void)
 start:
 	for (int of = 0; of < 120; of++) {
 		display->clear();
+		Matrix4x4 m;
+		m.rotate(PI * 2.f * (float)of / 120.f, Vector3D(1, 1, 0));
+		display->setModelView(m);
 		for (int i = 0; i < 120; i++) {
 			float o = (float)((i - of + 120) % 120) / 120.f;
 			display->colour(i * 2) = Vector3D(o, 1.f - o, 0);
