@@ -1,4 +1,7 @@
+#include <cmath>
 #include "matrix4x4.h"
+
+using namespace std;
 
 Matrix4x4::Matrix4x4(void)
 {
@@ -18,6 +21,24 @@ Vector4D Matrix4x4::map(const Vector4D& v) const
 		for (int i = 0; i < 4; i++)
 			vec[r] += (*this)(r, i) * v[i];
 	return vec;
+}
+
+void Matrix4x4::rotate(float angle, const Vector3D& vector)
+{
+	Vector3D v = vector.normalized();
+	float c = cos(angle), s = sin(angle);
+	float x = v.x(), y = v.y(), z = v.z();
+	float xs = x * s, ys = y * s, zs = z * s;
+	float xy1c = x * y * (1.f - c);
+	float xz1c = x * z * (1.f - c);
+	float yz1c = y * z * (1.f - c);
+	float m[16] = {
+		c + x * x * (1.f - c), xy1c + zs, xz1c - ys, 0.f,
+		xy1c - zs, c + y * y * (1.f - c), yz1c + xs, 0.f,
+		xy1c + ys, yz1c - xs, c + z * z * (1.f - c), 0.f,
+		0.f, 0.f, 0.f, 1.f,
+	};
+	(*this) *= Matrix4x4(m);
 }
 
 Matrix4x4& Matrix4x4::operator*=(const Matrix4x4& m)

@@ -18,6 +18,7 @@ public:
 	const float *data(void) const {return mat;}
 	const float *constData(void) const {return mat;}
 	Vector4D map(const Vector4D& v) const;
+	void rotate(float angle, const Vector3D& vector);
 
 	const float& operator()(int row, int col) const {return *(mat + row + col * 4);}
 	float& operator()(int row, int col) {return *(mat + row + col * 4);}
