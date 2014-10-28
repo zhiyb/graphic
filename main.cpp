@@ -20,8 +20,8 @@ int main(void)
 	init();
 
 	// Generate arrays
-	int r = 250;
-	Vector3D c(display->width() / 2, display->height() / 2, 0);
+	float r = 0.8;
+	Vector3D c(0.f, 0.f, 0.f);
 	for (double a = 0; a < 2.f * PI; a += PI * 2 / 120) {
 		Vector3D p(r * cos(a), r * sin(a), 0);
 		display->vertices().push_back(c + p / 3);
@@ -29,11 +29,17 @@ int main(void)
 		display->colours().push_back(Vector3D());
 		display->colours().push_back(Vector3D());
 	}
+	display->vertices().push_back(Vector3D());
+	display->vertices().push_back(Vector3D(0.8, 0.8, 0.8));
+	display->colours().push_back(Vector3D(1.f, 1.f, 1.f));
+	display->colours().push_back(Vector3D(102.f / 255.f, 204.f / 255.f, 1.f));
 
 start:
 	for (int of = 0; of < 120; of++) {
 		display->clear();
 		Matrix4x4 m;
+		display->setModelView(m);
+		display->drawArray(Display::Lines, 240, 2);
 		m.rotate(PI * 2.f * (float)of / 120.f, Vector3D(1, 1, 0));
 		display->setModelView(m);
 		for (int i = 0; i < 120; i++) {

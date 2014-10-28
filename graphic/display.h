@@ -17,6 +17,7 @@ public:
 	virtual bool valid(void) = 0;
 	inline int width(void) const {return buffer.width;}
 	inline int height(void) const {return buffer.height;}
+	void resize(const int w, const int h);
 	void drawArray(DrawModes mode, uint32_t first, uint32_t count);
 	void clear(void);
 
@@ -44,9 +45,10 @@ protected:
 
 private:
 	struct Data {
-		void updateMVP(void) {mvp = projection * modelView;}
+		void updateMVP(void) {mvp = mapping * projection * modelView;}
 		std::vector<Vector3D> vertices, colours;
-		Matrix4x4 mvp, modelView, projection;
+		Matrix4x4 mvp;
+		Matrix4x4 modelView, projection, mapping;
 		uint32_t pointSize;
 	} data;
 

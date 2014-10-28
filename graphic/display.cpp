@@ -25,7 +25,16 @@ void Display::Buffer::resize(const int w, const int h)
 
 Display::Display(const int width, const int height)
 {
+	resize(width, height);
+}
+
+void Display::resize(const int width, const int height)
+{
 	buffer.resize(width, height);
+	data.mapping = Matrix4x4();
+	data.mapping.scale(Vector3D(width / 2, -height / 2, 1.f));
+	data.mapping.translate(Vector3D(width / 2, height / 2, 0.f));
+	data.updateMVP();
 }
 
 void Display::clear(void)
