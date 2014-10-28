@@ -48,8 +48,8 @@ const Vector4D operator/(const Vector4D& v1, float d);
 
 inline uint32_t Vector4D::toColour(void) const
 {
-	uint32_t r = 255 * x(), g = 255 * y(), b = 255 * z();
-	return ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
+	uint32_t a = 255 * w(), r = 255 * x(), g = 255 * y(), b = 255 * z();
+	return ((a & 0xFF) << 24) | ((r & 0xFF) << 16) | ((g & 0xFF) << 8) | (b & 0xFF);
 }
 
 #endif
