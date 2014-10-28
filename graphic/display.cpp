@@ -46,7 +46,8 @@ inline void Display::plot(uint32_t x, uint32_t y, bool reverse, float depth, con
 
 void Display::drawPoint(uint32_t index)
 {
-	int x = vertex(index).x(), y = vertex(index).y(), z = vertex(index).z();
+	const Vector3D v = map(vertex(index));
+	int x = v.x(), y = v.y(), z = v.z();
 	uint32_t c = colour(index).toColour();
 	uint32_t s = pointSize();
 	for (uint32_t dy = 0; dy < s; dy++)
@@ -75,11 +76,25 @@ void Display::drawArray(DrawModes mode, uint32_t first, uint32_t count)
 	}
 }
 
+#include <iostream>
+const Vector3D Display::map(const Vector4D& v)
+{
+	Vector3D vec(data.mvp * v);
+#if 0
+	for (int i = 0; i < 4; i++)
+		cout << data.mvp(i, 0) << ' ' << data.mvp(i, 1) << ' ' << data.mvp(i, 2) << ' ' << data.mvp(i, 3) << endl;
+	cout << v[0] << ' ' << v[1] << ' ' << v[2] << ' ' << v[3] << ' ' << endl;
+	cout << vec[0] << ' ' << vec[1] << ' ' << vec[2] << ' ' << endl;
+#endif
+	return vec;
+	//return Vector3D(data.mvp * v);
+}
+
 void Display::drawLine(uint32_t index)
 {
 	// Symmetric Double Step
-	int a1 = vertex(index).x(), b1 = vertex(index).y();
-	int a2 = vertex(index + 1).x(), b2 = vertex(index + 1).y();
+	const Vector3D v1 = map(vertex(index)), v2 = map(vertex(index + 1));
+	int a1 = v1.x(), b1 = v1.y(), a2 = v2.x(), b2 = v2.y();
 	int dx, dy, incr1, incr2, d, x, y, xend, c, pixels_left;
 	int x1, y1;
 	int sign_x, sign_y, step, reverse, i;
@@ -112,8 +127,8 @@ void Display::drawLine(uint32_t index)
 		y = b2;
 		x1 = a1;
 		y1 = b1;
-		z = vertex(index + 1).z();
-		dz = vertex(index).z() - z;
+		z = v2.z();
+		dz = v1.z() - z;
 		clr = colour(index + 1);
 		dclr = colour(index) - clr;
 	} else {
@@ -121,8 +136,8 @@ void Display::drawLine(uint32_t index)
 		y = b1;
 		x1 = a2;
 		y1 = b2;
-		z = vertex(index).z();
-		dz = vertex(index + 1).z() - z;
+		z = v1.z();
+		dz = v2.z() - z;
 		clr = colour(index);
 		dclr = colour(index + 1) - clr;
 	}

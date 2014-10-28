@@ -24,7 +24,7 @@ public:
 	inline uint32_t toColour(void) const;
 
 	float& operator[](int i) {return vec[i];}
-	const float& operator[](int i) const {return (*this)[i];}
+	const float& operator[](int i) const {return vec[i];}
 	Vector4D& operator+=(const Vector4D& vector);
 	Vector4D& operator-=(const Vector4D& vector);
 	Vector4D& operator*=(const Vector4D& vector);

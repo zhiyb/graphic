@@ -4,6 +4,8 @@
 #include <inttypes.h>
 #include <vector>
 #include "vector3d.h"
+#include "vector4d.h"
+#include "matrix4x4.h"
 
 class Display
 {
@@ -37,13 +39,16 @@ protected:
 
 private:
 	struct Data {
+		void updateMVP(void) {mvp = projection * modelView;}
 		std::vector<Vector3D> vertices, colours;
+		Matrix4x4 mvp, modelView, projection;
 		uint32_t pointSize;
 	} data;
 
 	void drawLine(uint32_t index);
 	void drawPoint(uint32_t index);
 	inline void plot(uint32_t x, uint32_t y, bool reverse, float depth, const Vector3D& colour);
+	const Vector3D map(const Vector4D& v);
 };
 
 extern Display *display;

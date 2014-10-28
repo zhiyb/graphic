@@ -22,7 +22,7 @@ public:
 	inline uint32_t toColour(void) const;
 
 	float& operator[](int i) {return vec[i];}
-	const float& operator[](int i) const {return (*this)[i];}
+	const float& operator[](int i) const {return vec[i];}
 	Vector3D& operator+=(const Vector3D& vector);
 	Vector3D& operator-=(const Vector3D& vector);
 	Vector3D& operator*=(const Vector3D& vector);
