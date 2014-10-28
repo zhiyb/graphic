@@ -40,7 +40,7 @@ start:
 			display->drawArray(Display::Lines, i * 2, 2);
 		}
 		display->update();
-		usleep(10000);
+		usleep(100000);
 	}
 	goto start;
 
