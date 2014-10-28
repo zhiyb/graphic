@@ -3,7 +3,7 @@
 
 #include <inttypes.h>
 #include <vector>
-#include "vector.h"
+#include "vector3d.h"
 
 class Display
 {

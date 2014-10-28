@@ -8,6 +8,6 @@
 
 #include "display.h"
 #include "framebuffer.h"
-#include "vector.h"
+#include "vector3d.h"
 
 #endif

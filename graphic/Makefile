@@ -1,4 +1,4 @@
-SRC	= ascii.c framebuffer.cpp display.cpp vector.cpp
+SRC	= ascii.c framebuffer.cpp display.cpp vector3d.cpp
 SUBDIRS	= 
 TARGET	= graphic
 OBJS	= $(subst .c,.o,$(subst .cpp,.o,$(SRC)))

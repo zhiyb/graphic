@@ -1,5 +1,5 @@
-#ifndef GRAPHIC_VECTOR
-#define GRAPHIC_VECTOR
+#ifndef GRAPHIC_VECTOR3D
+#define GRAPHIC_VECTOR3D
 
 #include <inttypes.h>
 
