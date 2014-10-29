@@ -52,8 +52,9 @@ private:
 		uint32_t pointSize;
 	} data;
 
-	void drawLine(uint32_t index);
+	void drawLine(uint32_t index1, uint32_t index2);
 	void drawPoint(uint32_t index);
+	void drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3);
 	inline void plot(uint32_t x, uint32_t y, bool reverse, float depth, const Vector3D& colour);
 	const Vector3D map(const Vector4D& v);
 };

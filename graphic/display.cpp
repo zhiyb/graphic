@@ -75,13 +75,17 @@ void Display::drawArray(DrawModes mode, uint32_t first, uint32_t count)
 			drawPoint(first++);
 		break;
 	case Lines:
-		for (;count > 1; count -= 2) {
-			drawLine(first);
+		for (; count > 1; count -= 2) {
+			drawLine(first, first + 1);
 			first += 2;
 		}
 		break;
 	case Triangles:
-		;
+		for (; count > 1; count -= 3) {
+			drawTriangle(first, first + 1, first + 2);
+			first += 3;
+		}
+		break;
 	}
 }
 
@@ -90,10 +94,10 @@ const Vector3D Display::map(const Vector4D& v)
 	return Vector3D(data.mvp * v);
 }
 
-void Display::drawLine(uint32_t index)
+void Display::drawLine(uint32_t index1, uint32_t index2)
 {
 	// Symmetric Double Step
-	const Vector3D v1 = map(vertex(index)), v2 = map(vertex(index + 1));
+	const Vector3D v1 = map(vertex(index1)), v2 = map(vertex(index2));
 	int a1 = v1.x(), b1 = v1.y(), a2 = v2.x(), b2 = v2.y();
 	int dx, dy, incr1, incr2, d, x, y, xend, c, pixels_left;
 	int x1, y1;
@@ -129,8 +133,8 @@ void Display::drawLine(uint32_t index)
 		y1 = b1;
 		z = v2.z();
 		dz = v1.z() - z;
-		clr = colour(index + 1);
-		dclr = colour(index) - clr;
+		clr = colour(index2);
+		dclr = colour(index1) - clr;
 	} else {
 		x = a1;
 		y = b1;
@@ -138,8 +142,8 @@ void Display::drawLine(uint32_t index)
 		y1 = b2;
 		z = v1.z();
 		dz = v2.z() - z;
-		clr = colour(index);
-		dclr = colour(index + 1) - clr;
+		clr = colour(index1);
+		dclr = colour(index2) - clr;
 	}
 
 	// Note! dx = n implies 0 - n or (dx + 1) pixels to be set
@@ -343,4 +347,11 @@ void Display::drawLine(uint32_t index)
 			}
 		}
 	}
+}
+
+void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
+{
+	drawLine(index1, index2);
+	drawLine(index2, index3);
+	drawLine(index1, index3);
 }
