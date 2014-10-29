@@ -40,7 +40,7 @@ start:
 		Matrix4x4 m;
 		display->setModelView(m);
 		display->drawArray(Display::Lines, 240, 2);
-		m.rotate(PI * 2.f * (float)of / 120.f, Vector3D(-1, 1, 0));
+		m.rotate(PI * 2.f * (float)of / 120.f, Vector3D(1, -1, 0));
 		display->setModelView(m);
 		for (int i = 0; i < 120; i++) {
 			float o = (float)((i - of + 120) % 120) / 120.f;
@@ -49,7 +49,7 @@ start:
 			display->drawArray(Display::Lines, i * 2, 2);
 		}
 		display->update();
-		usleep(100000);
+		usleep(20000);
 	}
 	goto start;
 
