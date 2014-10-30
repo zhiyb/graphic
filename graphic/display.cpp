@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "display.h"
 
-#define ROUND(x)	(x >= 0 ? (long)(x + 0.5) : (long)(x - 0.5))
+//#define ROUND(x)	(x >= 0 ? (long)(x + 0.5) : (long)(x - 0.5))
 
 Display *display = 0;
 
@@ -353,7 +353,7 @@ void Display::drawLine(uint32_t index1, uint32_t index2)
 
 void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 {
-#if 1
+#if 0
 	drawLine(index1, index2);
 	drawLine(index1, index3);
 	drawLine(index2, index3);
@@ -368,26 +368,26 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 	if ((vertex(index2).y() - vertex(index1).y()) * (vertex(index1).x() - vertex(index3).x()) < (vertex(index3).y() - vertex(index1).y()) * (vertex(index1).x() - vertex(index2).x()))
 		swap(index2, index3);
 	const Vector3D v1 = map(vertex(index1)), v2 = map(vertex(index2)), v3 = map(vertex(index3));
-	float dx12 = v2.x() - v1.x(), dx13 = v3.x() - v1.x();//, dx23 = v3.x() - v2.x();
+	float dx12 = v2.x() - v1.x(), dx13 = v3.x() - v1.x(), dx23 = v3.x() - v2.x();
 	float dy12 = v2.y() - v1.y(), dy13 = v3.y() - v1.y(), dy23 = v3.y() - v2.y();
-	float dz12 = v2.z() - v1.z(), dz13 = v3.z() - v1.z();//, dz23 = v3.z() - v2.z();
+	float dz12 = v2.z() - v1.z(), dz13 = v3.z() - v1.z(), dz23 = v3.z() - v2.z();
 	Vector3D c1 = colour(index1), c2 = colour(index2), c3 = colour(index3);
-	Vector3D dc12 = c2 - c1, dc13 = c3 - c1;//, dc23 = c3 - c2;
+	Vector3D dc12 = c2 - c1, dc13 = c3 - c1, dc23 = c3 - c2;
 	Vector3D cL, cR;
 	//int x1, y1, x2, y2;
 	int y, yu, yd;
-	float dy;
+	float dy, dyL, dyR;
 	float xL, xR;
 	float zL, zR;
 	float fL, fR;
 	if (dy23 >= 0) {
 		// v2 above v3
-		yu = round(v2.y());
-		yd = round(v3.y());
+		yu = round(v2.y()) - 1;
+		yd = round(v3.y()) - 1;
 	} else {
 		// v2 below v3
-		yu = round(v3.y());
-		yd = round(v2.y());
+		yu = round(v3.y()) - 1;
+		yd = round(v2.y()) - 1;
 	}
 	// Upper part
 	for (y = round(v1.y()); y <= yu; y++) {
@@ -405,7 +405,40 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 		drawHorizontalLine(y, xL, xR, zL, zR, cL, cR);
 	}
 	// Lower part
-	for (; y <= yd; y++) {
+	if (dy23 >= 0) {
+		// v2 above v3
+		for (; y <= yd; y++) {
+			dyL = (float)y + 0.5 - v2.y();
+			dyR = (float)y + 0.5 - v1.y();
+			fL = dyL / dy23;
+			fR = dyR / dy13;
+			xL = fL * dx23 + v2.x();
+			xR = fR * dx13 + v1.x();
+			if (round(xL) == round(xR))
+				continue;
+			zL = fL * dz23 + v2.z();
+			zR = fR * dz13 + v1.z();
+			cL = fL * dc23 + c2;
+			cR = fR * dc13 + c1;
+			drawHorizontalLine(y, xL, xR, zL, zR, cL, cR);
+		}
+	} else {
+		// v3 above v2
+		for (; y <= yd; y++) {
+			dyL = (float)y + 0.5 - v1.y();
+			dyR = (float)y + 0.5 - v3.y();
+			fL = dyL / dy12;
+			fR = dyR / -dy23;
+			xL = fL * dx12 + v1.x();
+			xR = fR * -dx23 + v3.x();
+			if (round(xL) == round(xR))
+				continue;
+			zL = fL * dz12 + v1.z();
+			zR = fR * -dz23 + v3.z();
+			cL = fL * dc12 + c1;
+			cR = fR * -dc23 + c3;
+			drawHorizontalLine(y, xL, xR, zL, zR, cL, cR);
+		}
 	}
 }
 
