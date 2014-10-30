@@ -21,7 +21,16 @@ int main(void)
 
 	// Generate arrays
 	float r = 0.8;
-	int c = 6;
+	Vector3D center(0.f, 0.f, 0.2);
+	for (double a = 0; a < 2.f * PI; a += PI * 2 / 120) {
+		Vector3D p(r * cos(a), r * sin(a), 0);
+		display->vertices().push_back(center + p / 3);
+		display->vertices().push_back(center + p);
+		display->colours().push_back(Vector3D());
+		display->colours().push_back(Vector3D());
+	}
+	//float r = 0.8;
+	int c = 64;
 	for (int i = 0; i < c;) {
 		Vector3D pL(r * cos((float)i * 2.f * PI / (float)c), r * sin((float)i * 2.f * PI / (float)c), 0);
 		i++;
@@ -30,7 +39,7 @@ int main(void)
 		display->vertices().push_back(Vector3D(pL));
 		display->vertices().push_back(Vector3D(pR));
 		display->colours().push_back(Vector3D(1.f, 0.f, 0.f));
-		if (1 || i % 2) {
+		if (i % 2) {
 			display->colours().push_back(Vector3D(0.f, 1.f, 0.f));
 			display->colours().push_back(Vector3D(0.f, 0.f, 1.f));
 		} else {
@@ -40,13 +49,20 @@ int main(void)
 	}
 
 start:
-	for (int of = 0; of < 120; of++) {
+	int ro = 360;
+	for (int of = 0; of < ro; of++) {
 		display->clear();
 		Matrix4x4 m;
-		m.rotate(PI * 2.f * (float)of / 120.f, Vector3D(0, 0, 1));
+		m.rotate(PI * 2.f * (float)of / (float)ro, Vector3D(1, 1, -1));
 		display->setModelView(m);
+		for (int i = 0; i < 120; i++) {
+			float o = (float)((i + of) % 120) / 120.f;
+			display->colour(i * 2) = Vector3D(o, 1.f - o, 0);
+			display->colour(i * 2 + 1) = Vector3D(0, 0, o);
+			display->drawArray(Display::Lines, i * 2, 2);
+		}
 		for (int i = 0; i < c; i++)
-			display->drawArray(Display::Triangles, i * 3, 3);
+			display->drawArray(Display::Triangles, 240 + i * 3, 3);
 		display->update();
 		usleep(20000);
 	}

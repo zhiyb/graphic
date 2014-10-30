@@ -23,6 +23,8 @@ void Display::Buffer::resize(const int w, const int h)
 	delete [] depth;
 	data = new uint32_t[bytes() / sizeof(uint32_t)];
 	depth = new float[bytes() / sizeof(uint32_t)];
+	for (uint32_t i = 0; i < bytes() / sizeof(uint32_t); i++)
+		*(depth + i) = -1.f;
 }
 
 Display::Display(const int width, const int height)
@@ -34,7 +36,7 @@ void Display::resize(const int width, const int height)
 {
 	buffer.resize(width, height);
 	data.mapping = Matrix4x4();
-	data.mapping.scale(Vector3D(width / 2, -height / 2, 1.f));
+	data.mapping.scale(Vector3D(height / 2, -height / 2, 1.f));
 	data.mapping.translate(Vector3D(width / 2, height / 2, 0.f));
 	data.updateMVP();
 }
@@ -42,14 +44,15 @@ void Display::resize(const int width, const int height)
 void Display::clear(void)
 {
 	memset(buffer.data, 0, buffer.bytes());
+	for (uint32_t i = 0; i < buffer.bytes() / sizeof(uint32_t); i++)
+		*(buffer.depth + i) = -1.f;
 }
 
 inline void Display::plot(uint32_t x, uint32_t y, bool reverse, float depth, const Vector3D& colour)
 {
-	if (reverse) {
-		*(buffer.data + x * width() + y) = colour.toColour();
-		*(buffer.depth + x * width() + y) = depth;
-	} else {
+	if (reverse)
+		swap(x, y);
+	if (*(buffer.depth + y * width() + x) <= depth) {
 		*(buffer.data + y * width() + x) = colour.toColour();
 		*(buffer.depth + y * width() + x) = depth;
 	}
