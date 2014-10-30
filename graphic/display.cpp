@@ -126,7 +126,7 @@ void Display::drawArray(DrawModes mode, uint32_t first, uint32_t count)
 		}
 		break;
 	case Triangles:
-		for (; count > 1; count -= 3) {
+		for (; count > 2; count -= 3) {
 			drawTriangle(first, first + 1, first + 2);
 			first += 3;
 		}
