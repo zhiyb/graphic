@@ -358,6 +358,7 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 	drawLine(index1, index3);
 	drawLine(index2, index3);
 #endif
+	// swap to clockwise order, with index1 at the top
 	if (vertex(index1).y() < vertex(index2).y())
 		swap(index1, index2);
 	if (vertex(index1).y() < vertex(index3).y())
