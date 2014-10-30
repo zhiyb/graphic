@@ -42,6 +42,7 @@ const Vector3D operator*(const Vector3D& v1, const Vector3D& v2);
 const Vector3D operator/(const Vector3D& v1, const Vector3D& v2);
 const Vector3D operator-(const Vector3D& vector);
 const Vector3D operator*(const Vector3D& v1, float m);
+const Vector3D operator*(float m, const Vector3D& v1) {return v1 * m;}
 const Vector3D operator/(const Vector3D& v1, float d);
 
 // inline functions
