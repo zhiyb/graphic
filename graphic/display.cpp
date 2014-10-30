@@ -362,18 +362,18 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 	// swap to clockwise order, with index1 at the top
 	if (v1.y() > v2.y()) {
 		swap(v1, v2);
-		//swap(index1, index2);
+		swap(index1, index2);
 	}
 	if (v1.y() > v3.y()) {
 		swap(v1, v3);
-		//swap(index1, index3);
+		swap(index1, index3);
 	}
 	// Note! y-axis is inverted
 	// Check gradient for swap index2, index3
 	if ((v2 - v1).normalized().x() > (v3 - v1).normalized().x()) {
 //	if ((v2.y() - v1.y()) * (v1.x() - v3.x()) < (v3.y() - v1.y()) * (v1.x() - v2.x())) {
 		swap(v2, v3);
-		//swap(index2, index3);
+		swap(index2, index3);
 	}
 #if 0
 	drawLine(index1, index2);
@@ -422,8 +422,7 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 	y = yu + 1;
 #endif
 	// Lower part
-	if (dy23 < 0) {
-		return;
+	if (dy23 >= 0) {
 		// v2 above v3
 		for (; y <= yd; y++) {
 			dyL = (float)y + 0.5 - v2.y();
@@ -441,7 +440,6 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 			drawHorizontalLine(y, xL, xR, zL, zR, cL, cR);
 		}
 	} else {
-		return;
 		// v3 above v2
 		for (; y <= yd; y++) {
 			dyL = (float)y + 0.5 - v1.y();
