@@ -353,11 +353,18 @@ void Display::drawLine(uint32_t index1, uint32_t index2)
 
 void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 {
+#if 1
+	drawLine(index1, index2);
+	drawLine(index1, index3);
+	drawLine(index2, index3);
+#endif
 	if (vertex(index1).y() < vertex(index2).y())
 		swap(index1, index2);
 	if (vertex(index1).y() < vertex(index3).y())
 		swap(index1, index3);
-	if (vertex(index2).x() > vertex(index3).x())
+	// Note! y-axis is inverted
+	// Check gradient for swap index2, index3
+	if ((vertex(index2).y() - vertex(index1).y()) * (vertex(index1).x() - vertex(index3).x()) < (vertex(index3).y() - vertex(index1).y()) * (vertex(index1).x() - vertex(index2).x()))
 		swap(index2, index3);
 	const Vector3D v1 = map(vertex(index1)), v2 = map(vertex(index2)), v3 = map(vertex(index3));
 	float dx12 = v2.x() - v1.x(), dx13 = v3.x() - v1.x();//, dx23 = v3.x() - v2.x();
@@ -367,7 +374,7 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 	Vector3D dc12 = c2 - c1, dc13 = c3 - c1;//, dc23 = c3 - c2;
 	Vector3D cL, cR;
 	//int x1, y1, x2, y2;
-	int y, yu;//, yd;
+	int y, yu, yd;
 	float dy;
 	float xL, xR;
 	float zL, zR;
@@ -375,20 +382,20 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 	if (dy23 >= 0) {
 		// v2 above v3
 		yu = round(v2.y());
-		//yd = round(v3.y());
+		yd = round(v3.y());
 	} else {
 		// v2 below v3
 		yu = round(v3.y());
-		//yd = round(v2.y());
+		yd = round(v2.y());
 	}
-	// Upper triangle
+	// Upper part
 	for (y = round(v1.y()); y <= yu; y++) {
 		dy = (float)y + 0.5 - v1.y();
 		fL = dy / dy12;
 		fR = dy / dy13;
 		xL = fL * dx12 + v1.x();
 		xR = fR * dx13 + v1.x();
-		if (round(xL) == round(xR))	// (round(xL) + 1 > round(xR))
+		if (round(xL) == round(xR))	// (round(xL) > round(xR) - 1)
 			continue;
 		zL = fL * dz12 + v1.z();
 		zR = fR * dz13 + v1.z();
@@ -396,19 +403,19 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 		cR = fR * dc13 + c1;
 		drawHorizontalLine(y, xL, xR, zL, zR, cL, cR);
 	}
-	drawLine(index1, index2);
-	drawLine(index2, index3);
-	drawLine(index1, index3);
+	// Lower part
+	for (; y <= yd; y++) {
+	}
 }
 
 void Display::drawHorizontalLine(int y, float xL, float xR, float zL, float zR, const Vector3D& cL, const Vector3D& cR)
 {
-	int x1 = round(xL), x2 = round(xR);
+	int x1 = round(xL), x2 = round(xR) - 1;
 	float dx = xR - xL, dz = zR - zL;
 	Vector3D dc = cR - cL;
 	float f;
 	while (x1 <= x2) {
-		f = ((float)x1 - xL) / dx;
+		f = ((float)x1 + 0.5 - xL) / dx;
 		plot(x1++, y, false, f * dz + zL, f * dc + cL);
 	}
 }

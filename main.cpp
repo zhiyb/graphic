@@ -20,9 +20,9 @@ int main(void)
 	init();
 
 	// Generate arrays
-	display->vertices().push_back(Vector3D(-0.6, -0.2, 0.f));
+	display->vertices().push_back(Vector3D(0.7, -0.2, 0.f));
 	display->vertices().push_back(Vector3D(0.f, 0.8, 0.f));
-	display->vertices().push_back(Vector3D(0.7, 0.3, 0.8));
+	display->vertices().push_back(Vector3D(-0.6, 0.3, 0.8));
 	display->colours().push_back(Vector3D(1.f, 0.f, 0.f));
 	display->colours().push_back(Vector3D(0.f, 1.f, 0.f));
 	display->colours().push_back(Vector3D(0.f, 0.f, 1.f));
