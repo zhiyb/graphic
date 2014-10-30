@@ -42,7 +42,7 @@ const Vector4D operator*(const Vector4D& v1, const Vector4D& v2);
 const Vector4D operator/(const Vector4D& v1, const Vector4D& v2);
 const Vector4D operator-(const Vector4D& vector);
 const Vector4D operator*(const Vector4D& v1, float m);
-const Vector4D operator*(float m, const Vector4D& v1) {return v1 * m;}
+static inline const Vector4D operator*(float m, const Vector4D& v1) {return v1 * m;}
 const Vector4D operator/(const Vector4D& v1, float d);
 
 // inline functions
