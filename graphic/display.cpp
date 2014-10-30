@@ -74,6 +74,7 @@ void Display::drawPoint(uint32_t index)
 
 void Display::drawArray(DrawModes mode, uint32_t first, uint32_t count)
 {
+	uint32_t i;
 	switch (mode) {
 	case Points:
 		while (count--)
@@ -85,6 +86,15 @@ void Display::drawArray(DrawModes mode, uint32_t first, uint32_t count)
 			drawLine(first, first + 1);
 			first++;
 		}
+		break;
+	case LineLoop:
+		i = first;
+		count--;
+		while (count--) {
+			drawLine(first, first + 1);
+			first++;
+		}
+		drawLine(i, first);
 		break;
 	case Lines:
 		for (; count > 1; count -= 2) {

@@ -61,7 +61,7 @@ start:
 			display->colour(i * 2) = Vector3D(o, 1.f - o, 0);
 			display->colour(i * 2 + 1) = Vector3D(0, 0, o);
 		}
-		display->drawArray(Display::LineStrip, 0, cLines * 2);
+		display->drawArray(Display::LineLoop, 0, cLines * 2);
 		for (int i = 0; i < c; i++)
 			display->drawArray(Display::Triangles, cLines * 2 + i * 3, 3);
 		display->update();
