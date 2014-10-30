@@ -21,10 +21,11 @@ int main(void)
 
 	// Generate arrays
 	float r = 0.8;
-	for (int i = 0; i < 8;) {
-		Vector3D pL(r * cos((float)i * 2.f * PI / 8.f), r * sin((float)i * 2.f * PI / 8.f), 0);
+	int c = 16;
+	for (int i = 0; i < c;) {
+		Vector3D pL(r * cos((float)i * 2.f * PI / (float)c), r * sin((float)i * 2.f * PI / (float)c), 0);
 		i++;
-		Vector3D pR(r * cos((float)i * 2.f * PI / 8.f), r * sin((float)i * 2.f * PI / 8.f), 0);
+		Vector3D pR(r * cos((float)i * 2.f * PI / (float)c), r * sin((float)i * 2.f * PI / (float)c), 0);
 		display->vertices().push_back(Vector3D());
 		display->vertices().push_back(Vector3D(pL));
 		display->vertices().push_back(Vector3D(pR));
@@ -34,7 +35,7 @@ int main(void)
 	}
 
 	display->clear();
-	for (int i = 0; i < 8; i++)
+	for (int i = 0; i < c; i++)
 	//int i = 1;
 		display->drawArray(Display::Triangles, i * 3, 3);
 	display->update();
