@@ -358,16 +358,29 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 	drawLine(index1, index3);
 	drawLine(index2, index3);
 #endif
+	Vector3D v1 = map(vertex(index1)), v2 = map(vertex(index2)), v3 = map(vertex(index3));
 	// swap to clockwise order, with index1 at the top
-	if (vertex(index1).y() < vertex(index2).y())
-		swap(index1, index2);
-	if (vertex(index1).y() < vertex(index3).y())
-		swap(index1, index3);
+	if (v1.y() > v2.y()) {
+		swap(v1, v2);
+		//swap(index1, index2);
+	}
+	if (v1.y() > v3.y()) {
+		swap(v1, v3);
+		//swap(index1, index3);
+	}
 	// Note! y-axis is inverted
 	// Check gradient for swap index2, index3
-	if ((vertex(index2).y() - vertex(index1).y()) * (vertex(index1).x() - vertex(index3).x()) < (vertex(index3).y() - vertex(index1).y()) * (vertex(index1).x() - vertex(index2).x()))
-		swap(index2, index3);
-	const Vector3D v1 = map(vertex(index1)), v2 = map(vertex(index2)), v3 = map(vertex(index3));
+	if ((v2 - v1).normalized().x() > (v3 - v1).normalized().x()) {
+//	if ((v2.y() - v1.y()) * (v1.x() - v3.x()) < (v3.y() - v1.y()) * (v1.x() - v2.x())) {
+		swap(v2, v3);
+		//swap(index2, index3);
+	}
+#if 0
+	drawLine(index1, index2);
+	drawLine(index1, index3);
+	drawLine(index2, index3);
+#endif
+	//plot(v2.x(), v2.y(), false, 0, Vector3D(1.f, 1.f, 1.f));
 	float dx12 = v2.x() - v1.x(), dx13 = v3.x() - v1.x(), dx23 = v3.x() - v2.x();
 	float dy12 = v2.y() - v1.y(), dy13 = v3.y() - v1.y(), dy23 = v3.y() - v2.y();
 	float dz12 = v2.z() - v1.z(), dz13 = v3.z() - v1.z(), dz23 = v3.z() - v2.z();
@@ -389,6 +402,7 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 		yu = round(v3.y()) - 1;
 		yd = round(v2.y()) - 1;
 	}
+#if 1
 	// Upper part
 	for (y = round(v1.y()); y <= yu; y++) {
 		dy = (float)y + 0.5 - v1.y();
@@ -404,8 +418,12 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 		cR = fR * dc13 + c1;
 		drawHorizontalLine(y, xL, xR, zL, zR, cL, cR);
 	}
+#else
+	y = yu + 1;
+#endif
 	// Lower part
-	if (dy23 >= 0) {
+	if (dy23 < 0) {
+		return;
 		// v2 above v3
 		for (; y <= yd; y++) {
 			dyL = (float)y + 0.5 - v2.y();
@@ -423,6 +441,7 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 			drawHorizontalLine(y, xL, xR, zL, zR, cL, cR);
 		}
 	} else {
+		return;
 		// v3 above v2
 		for (; y <= yd; y++) {
 			dyL = (float)y + 0.5 - v1.y();

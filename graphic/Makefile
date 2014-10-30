@@ -6,7 +6,7 @@ OBJS	= $(subst .c,.o,$(subst .cpp,.o,$(SRC)))
 PREFIX	:= #mipsel-linux-
 CC	:= $(PREFIX)g++
 AR	:= $(PREFIX)ar
-CFLAGS	:= -g -I. -Wall -Wsign-compare -Werror -O3
+CFLAGS	:= -g -I. -Wall -Wsign-compare -O3
 
 ARFLAGS	= rcs
 
