@@ -35,7 +35,7 @@ void Matrix4x4::rotate(float angle, const Vector3D& vector)
 	float m[16] = {
 		c + x * x * (1.f - c), xy1c + zs, xz1c - ys, 0.f,
 		xy1c - zs, c + y * y * (1.f - c), yz1c + xs, 0.f,
-		xy1c + ys, yz1c - xs, c + z * z * (1.f - c), 0.f,
+		xz1c + ys, yz1c - xs, c + z * z * (1.f - c), 0.f,
 		0.f, 0.f, 0.f, 1.f,
 	};
 	(*this) *= Matrix4x4(m);
