@@ -81,6 +81,8 @@ void Display::drawArray(DrawModes mode, uint32_t first, uint32_t count)
 			drawPoint(first++);
 		break;
 	case LineStrip:
+		if (count < 2)
+			break;
 		count--;
 		while (count--) {
 			drawLine(first, first + 1);
@@ -88,6 +90,8 @@ void Display::drawArray(DrawModes mode, uint32_t first, uint32_t count)
 		}
 		break;
 	case LineLoop:
+		if (count < 2)
+			break;
 		i = first;
 		count--;
 		while (count--) {
@@ -103,10 +107,22 @@ void Display::drawArray(DrawModes mode, uint32_t first, uint32_t count)
 		}
 		break;
 	case TriangleStrip:
+		if (count < 3)
+			break;
 		count -= 2;
 		while (count--) {
 			drawTriangle(first, first + 1, first + 2);
 			first++;
+		}
+		break;
+	case TriangleFan:
+		if (count < 3)
+			break;
+		i = first;
+		count -= 2;
+		while (count--) {
+			first++;
+			drawTriangle(i, first, first + 1);
 		}
 		break;
 	case Triangles:
