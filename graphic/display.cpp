@@ -353,11 +353,6 @@ void Display::drawLine(uint32_t index1, uint32_t index2)
 
 void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 {
-#if 0
-	drawLine(index1, index2);
-	drawLine(index1, index3);
-	drawLine(index2, index3);
-#endif
 	Vector3D v1 = map(vertex(index1)), v2 = map(vertex(index2)), v3 = map(vertex(index3));
 	// swap to clockwise order, with index1 at the top
 	if (v1.y() > v2.y()) {
@@ -371,23 +366,15 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 	// Note! y-axis is inverted
 	// Check gradient for swap index2, index3
 	if ((v2 - v1).normalized().x() > (v3 - v1).normalized().x()) {
-//	if ((v2.y() - v1.y()) * (v1.x() - v3.x()) < (v3.y() - v1.y()) * (v1.x() - v2.x())) {
 		swap(v2, v3);
 		swap(index2, index3);
 	}
-#if 0
-	drawLine(index1, index2);
-	drawLine(index1, index3);
-	drawLine(index2, index3);
-#endif
-	//plot(v2.x(), v2.y(), false, 0, Vector3D(1.f, 1.f, 1.f));
 	float dx12 = v2.x() - v1.x(), dx13 = v3.x() - v1.x(), dx23 = v3.x() - v2.x();
 	float dy12 = v2.y() - v1.y(), dy13 = v3.y() - v1.y(), dy23 = v3.y() - v2.y();
 	float dz12 = v2.z() - v1.z(), dz13 = v3.z() - v1.z(), dz23 = v3.z() - v2.z();
 	Vector3D c1 = colour(index1), c2 = colour(index2), c3 = colour(index3);
 	Vector3D dc12 = c2 - c1, dc13 = c3 - c1, dc23 = c3 - c2;
 	Vector3D cL, cR;
-	//int x1, y1, x2, y2;
 	int y, yu, yd;
 	float dy, dyL, dyR;
 	float xL, xR;
@@ -402,7 +389,6 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 		yu = round(v3.y()) - 1;
 		yd = round(v2.y()) - 1;
 	}
-#if 1
 	// Upper part
 	for (y = round(v1.y()); y <= yu; y++) {
 		dy = (float)y + 0.5 - v1.y();
@@ -418,9 +404,6 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 		cR = fR * dc13 + c1;
 		drawHorizontalLine(y, xL, xR, zL, zR, cL, cR);
 	}
-#else
-	y = yu + 1;
-#endif
 	// Lower part
 	if (dy23 >= 0) {
 		// v2 above v3
