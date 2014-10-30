@@ -7,7 +7,7 @@ OBJS	= $(subst .c,.o,$(subst .cpp,.o,$(SRC)))
 PREFIX	= #mipsel-linux-
 CC	:= $(PREFIX)g++
 STRIP	+= && $(PREFIX)strip
-CFLAGS	:= -g -I. -I./graphic -Wall -Wsign-compare -O3
+CFLAGS	:= -g -I. -I./graphic -Wall -Wsign-compare -Werror -O3
 LDFLAGS	:= -g -L./graphic -lgraphic -lpthread
 
 .PHONE: all
