@@ -10,7 +10,7 @@
 class Display
 {
 public:
-	enum DrawModes {Points, Lines, Triangles};
+	enum DrawModes {Points, LineStrip, Lines, Triangles};
 	Display(const int width, const int height);
 	virtual ~Display(void) {}
 	virtual void update(void) = 0;

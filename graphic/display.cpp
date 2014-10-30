@@ -79,6 +79,13 @@ void Display::drawArray(DrawModes mode, uint32_t first, uint32_t count)
 		while (count--)
 			drawPoint(first++);
 		break;
+	case LineStrip:
+		count--;
+		while (count--) {
+			drawLine(first, first + 1);
+			first++;
+		}
+		break;
 	case Lines:
 		for (; count > 1; count -= 2) {
 			drawLine(first, first + 1);
