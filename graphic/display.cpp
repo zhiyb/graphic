@@ -102,6 +102,13 @@ void Display::drawArray(DrawModes mode, uint32_t first, uint32_t count)
 			first += 2;
 		}
 		break;
+	case TriangleStrip:
+		count -= 2;
+		while (count--) {
+			drawTriangle(first, first + 1, first + 2);
+			first++;
+		}
+		break;
 	case Triangles:
 		for (; count > 1; count -= 3) {
 			drawTriangle(first, first + 1, first + 2);

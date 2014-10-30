@@ -21,7 +21,7 @@ int main(void)
 
 	// Generate arrays
 	float r = 0.8;
-	int cLines = 8;
+	int cLines = 12;
 	Vector3D center(0.f, 0.f, 0.2);
 	for (double a = 0; a < 2.f * PI; a += PI * 2.f / (float)cLines) {
 		Vector3D p(r * cos(a), r * sin(a), 0);
@@ -61,7 +61,7 @@ start:
 			display->colour(i * 2) = Vector3D(o, 1.f - o, 0);
 			display->colour(i * 2 + 1) = Vector3D(0, 0, o);
 		}
-		display->drawArray(Display::LineLoop, 0, cLines * 2);
+		display->drawArray(Display::TriangleStrip, 0, cLines * 2);
 		for (int i = 0; i < c; i++)
 			display->drawArray(Display::Triangles, cLines * 2 + i * 3, 3);
 		display->update();
