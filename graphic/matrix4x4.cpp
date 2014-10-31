@@ -63,6 +63,35 @@ void Matrix4x4::translate(const Vector3D& v)
 	(*this) *= Matrix4x4(m);
 }
 
+void Matrix4x4::perspective(float fov, float aspect, float near, float far)
+{
+	float uh = 1.f / tan(0.5f * fov);
+	float d = far / (far - near);
+	float m[16] = {
+		uh / aspect, 0.f, 0.f, 0.f,
+		0.f, uh, 0.f, 0.f,
+		0.f, 0.f, d, -near * d,
+		0.f, 0.f, 1.f, 0.f,
+	};
+	(*this) *= Matrix4x4(m);
+}
+
+void Matrix4x4::lookAt(const Vector3D& eye, const Vector3D& center, const Vector3D& up)
+{
+	// http://www.cs.virginia.edu/~gfx/Courses/1999/intro.fall99.html/lookat.html
+	Vector3D f = (center - eye).normalized(), us = up.normalized();
+	Vector3D s = Vector3D::crossProduct(f, us);
+	Vector3D u = Vector3D::crossProduct(s, f);
+	float m[16] = {
+		s.x(), u.x(), -f.x(), 0.f,
+		s.y(), u.y(), -f.y(), 0.f,
+		s.z(), u.z(), -f.z(), 0.f,
+		0.f, 0.f, 0.f, 1.f,
+	};
+	translate(-eye);
+	(*this) *= Matrix4x4(m);
+}
+
 Matrix4x4& Matrix4x4::operator*=(const Matrix4x4& m)
 {
 	float v[16];

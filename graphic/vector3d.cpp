@@ -28,6 +28,13 @@ float Vector3D::length() const
 	return sqrt(x() * x() + y() * y() + z() * z());
 }
 
+Vector3D Vector3D::crossProduct(const Vector3D& v1, const Vector3D& v2)
+{
+	return Vector3D(v1[1] * v2[2] - v1[2] * v2[1], \
+			v1[2] * v2[0] - v1[0] * v2[2], \
+			v1[0] * v2[1] - v1[1] * v2[0]);
+}
+
 Vector3D& Vector3D::operator+=(const Vector3D& vector)
 {
 	setX(x() + vector.x());

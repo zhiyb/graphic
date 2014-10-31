@@ -21,6 +21,8 @@ public:
 	void rotate(float angle, const Vector3D& vector);
 	void scale(const Vector3D& v);
 	void translate(const Vector3D& v);
+	void perspective(float fov, float aspect, float near, float far);
+	void lookAt(const Vector3D& eye, const Vector3D& center, const Vector3D& up);
 
 	const float& operator()(int row, int col) const {return *(mat + row + col * 4);}
 	float& operator()(int row, int col) {return *(mat + row + col * 4);}

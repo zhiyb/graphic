@@ -36,7 +36,7 @@ void Display::resize(const int width, const int height)
 {
 	buffer.resize(width, height);
 	data.mapping = Matrix4x4();
-	data.mapping.scale(Vector3D(height / 2, -height / 2, 1.f));
+	data.mapping.scale(Vector3D(width / 2, -height / 2, 1.f));
 	data.mapping.translate(Vector3D(width / 2, height / 2, 0.f));
 	data.updateMVP();
 }
@@ -45,13 +45,15 @@ void Display::clear(void)
 {
 	memset(buffer.data, 0, buffer.bytes());
 	for (uint32_t i = 0; i < buffer.bytes() / sizeof(uint32_t); i++)
-		*(buffer.depth + i) = -1.f;
+		*(buffer.depth + i) = -INFINITY;
 }
 
-inline void Display::plot(uint32_t x, uint32_t y, bool reverse, float depth, const Vector3D& colour)
+inline void Display::plot(int x, int y, bool reverse, float depth, const Vector3D& colour)
 {
 	if (reverse)
 		swap(x, y);
+	if (x < 0 || y < 0 || x >= width() || y >= height() || depth > 0)
+		return;
 	if (*(buffer.depth + y * width() + x) <= depth) {
 		*(buffer.data + y * width() + x) = colour.toColour();
 		*(buffer.depth + y * width() + x) = depth;
@@ -62,14 +64,15 @@ void Display::drawPoint(uint32_t index)
 {
 	const Vector3D v = map(vertex(index));
 	int x = v.x(), y = v.y(), z = v.z();
-	uint32_t c = colour(index).toColour();
+	//uint32_t c = colour(index).toColour();
 	uint32_t s = pointSize();
 	for (uint32_t dy = 0; dy < s; dy++)
 		for (uint32_t dx = 0; dx < s; dx++)
-			if (x >= 0 && x < width() && y >= 0 && y < height()) {
+			plot(x++, y++, false, z, colour(index));
+			/*if (x >= 0 && x < width() && y >= 0 && y < height()) {
 				*(buffer.depth + y * width() + x) = z;
 				*(buffer.data + y++ * width() + x++) = c;
-			}
+			}*/
 }
 
 void Display::drawArray(DrawModes mode, uint32_t first, uint32_t count)
@@ -139,16 +142,60 @@ const Vector3D Display::map(const Vector4D& v)
 	return Vector3D(data.mvp * v);
 }
 
+//#include <iostream>
 void Display::drawLine(uint32_t index1, uint32_t index2)
 {
 	// Symmetric Double Step
-	const Vector3D v1 = map(vertex(index1)), v2 = map(vertex(index2));
-	int a1 = v1.x(), b1 = v1.y(), a2 = v2.x(), b2 = v2.y();
+	Vector3D v1 = map(vertex(index1)), v2 = map(vertex(index2));
+	int a1 = round(v1.x()), b1 = round(v1.y());
+	int a2 = round(v2.x()), b2 = round(v2.y());
+	/*// Drawing area limit
+	if (a1 < 0) {
+		if (a2 < 0)
+			return;
+		a1 = 0;
+		b1 = (v2.y() - v1.y()) * (0.5f - v1.x()) / (v2.x() - v1.x()) + v1.y();
+	}
+	if (a2 < 0) {
+		a2 = 0;
+		b2 = (v1.y() - v2.y()) * (0.5f - v2.x()) / (v1.x() - v2.x()) + v2.y();
+	}
+	if (a1 >= width()) {
+		if (a2 >= width())
+			return;
+		a1 = width() - 1;
+		b1 = (v2.y() - v1.y()) * (v1.x() - ((float)a1 + 0.5)) / (v1.x() - v2.x()) + v1.y();
+	}
+	if (a2 >= width()) {
+		a2 = width() - 1;
+		b2 = (v1.y() - v2.y()) * (v2.x() - ((float)a2 + 0.5)) / (v2.x() - v1.x()) + v2.y();
+	}
+	if (b1 < 0.f) {
+		if (b2 < 0.f)
+			return;
+		b1 = 0;
+		a1 = (v2.x() - v1.x()) * (0.5f - v1.y()) / (v2.y() - v1.y()) + v1.x();
+	}
+	if (b2 < 0.f) {
+		b2 = 0;
+		a2 = (v1.x() - v2.x()) * (0.5f - v2.y()) / (v1.y() - v2.y()) + v2.x();
+	}
+	if (b1 >= height()) {
+		if (b2 >= height())
+			return;
+		b1 = height() - 1;
+		a1 = (v2.x() - v1.x()) * (v1.y() - ((float)b1 + 0.5)) / (v1.y() - v2.y()) + v1.x();
+	}
+	if (b2 >= height()) {
+		b2 = height() - 1;
+		a2 = (v1.x() - v2.x()) * (v2.y() - ((float)b2 + 0.5)) / (v2.y() - v1.y()) + v2.x();
+	}
+	cout << "LineF: " << v1.x() << ' ' << v1.y() << ", " << v2.x() << ' ' << v2.y() << endl;
+	cout << "LineI: " << a1 << ' ' << b1 << ", " << a2 << ' ' << b2 << endl;*/
 	int dx, dy, incr1, incr2, d, x, y, xend, c, pixels_left;
 	int x1, y1;
 	int sign_x, sign_y, step, reverse, i;
-	int df, xs;
-	float z, dz;
+	float df, xs, z, dz;
 	Vector3D clr, dclr;
 
 	sign_x = (a2 - a1) < 0 ? -1 : 1;
@@ -173,6 +220,7 @@ void Display::drawLine(uint32_t index1, uint32_t index2)
 	// Start from the smaller coordinate
 	if (a1 > a2) {
 		x = a2;
+		xs = reverse ? v2.y() : v2.x();
 		y = b2;
 		x1 = a1;
 		y1 = b1;
@@ -182,6 +230,7 @@ void Display::drawLine(uint32_t index1, uint32_t index2)
 		dclr = colour(index1) - clr;
 	} else {
 		x = a1;
+		xs = reverse ? v1.y() : v1.x();
 		y = b1;
 		x1 = a2;
 		y1 = b2;
@@ -195,7 +244,6 @@ void Display::drawLine(uint32_t index1, uint32_t index2)
 	// Go round loop dx / 4 times then plot last 0, 1, 2 or 3 pixels
 	// In fact (dx - 1) / 4 as 2 pixels are already plotted
 	xend = (dx - 1) / 4;
-	xs = x;
 	// Number of pixels left over at the end
 	pixels_left = (dx - 1) % 4;
 	plot(x, y, reverse, z, clr);
@@ -433,7 +481,10 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 		yd = round(v2.y()) - 1;
 	}
 	// Upper part
-	for (y = round(v1.y()); y <= yu; y++) {
+	y = round(v1.y());
+	if (y < 0)
+		y = 0;
+	for (; y <= yu && y < height(); y++) {
 		dy = (float)y + 0.5 - v1.y();
 		fL = dy / dy12;
 		fR = dy / dy13;
@@ -450,7 +501,7 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 	// Lower part
 	if (dy23 >= 0) {
 		// v2 above v3
-		for (; y <= yd; y++) {
+		for (; y <= yd && y < height(); y++) {
 			dyL = (float)y + 0.5 - v2.y();
 			dyR = (float)y + 0.5 - v1.y();
 			fL = dyL / dy23;
@@ -467,7 +518,7 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 		}
 	} else {
 		// v3 above v2
-		for (; y <= yd; y++) {
+		for (; y <= yd && y < height(); y++) {
 			dyL = (float)y + 0.5 - v1.y();
 			dyR = (float)y + 0.5 - v3.y();
 			fL = dyL / dy12;
@@ -491,7 +542,9 @@ void Display::drawHorizontalLine(int y, float xL, float xR, float zL, float zR, 
 	float dx = xR - xL, dz = zR - zL;
 	Vector3D dc = cR - cL;
 	float f;
-	while (x1 <= x2) {
+	if (x1 < 0)
+		x1 = 0;
+	while (x1 <= x2 && x1 < width()) {
 		f = ((float)x1 + 0.5 - xL) / dx;
 		plot(x1++, y, false, f * dz + zL, f * dc + cL);
 	}

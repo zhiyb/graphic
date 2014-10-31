@@ -22,6 +22,7 @@ public:
 	inline uint32_t toColour(void) const;
 	float length() const;
 	inline Vector3D normalized(void) const;
+	static Vector3D crossProduct(const Vector3D& v1, const Vector3D& v2);
 
 	float& operator[](int i) {return vec[i];}
 	const float& operator[](int i) const {return vec[i];}
