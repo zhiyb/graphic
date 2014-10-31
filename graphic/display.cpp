@@ -496,7 +496,7 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 		zR = fR * dz13 + v1.z();
 		cL = fL * dc12 + c1;
 		cR = fR * dc13 + c1;
-		drawHorizontalLine(y, xL, xR, zL, zR, cL, cR);
+		drawScanline(y, xL, xR, zL, zR, cL, cR);
 	}
 	// Lower part
 	if (dy23 >= 0) {
@@ -514,7 +514,7 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 			zR = fR * dz13 + v1.z();
 			cL = fL * dc23 + c2;
 			cR = fR * dc13 + c1;
-			drawHorizontalLine(y, xL, xR, zL, zR, cL, cR);
+			drawScanline(y, xL, xR, zL, zR, cL, cR);
 		}
 	} else {
 		// v3 above v2
@@ -531,12 +531,12 @@ void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 			zR = fR * -dz23 + v3.z();
 			cL = fL * dc12 + c1;
 			cR = fR * -dc23 + c3;
-			drawHorizontalLine(y, xL, xR, zL, zR, cL, cR);
+			drawScanline(y, xL, xR, zL, zR, cL, cR);
 		}
 	}
 }
 
-void Display::drawHorizontalLine(int y, float xL, float xR, float zL, float zR, const Vector3D& cL, const Vector3D& cR)
+void Display::drawScanline(int y, float xL, float xR, float zL, float zR, const Vector3D& cL, const Vector3D& cR)
 {
 	int x1 = round(xL), x2 = round(xR) - 1;
 	float dx = xR - xL, dz = zR - zL;

@@ -56,7 +56,7 @@ private:
 	void drawLine(uint32_t index1, uint32_t index2);
 	void drawPoint(uint32_t index);
 	void drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3);
-	void drawHorizontalLine(int y, float xL, float xR, float zL, float zR, const Vector3D& cL, const Vector3D& cR);
+	void drawScanline(int y, float xL, float xR, float zL, float zR, const Vector3D& cL, const Vector3D& cR);
 	inline void plot(int x, int y, bool reverse, float depth, const Vector3D& colour);
 	const Vector3D map(const Vector4D& v);
 };
