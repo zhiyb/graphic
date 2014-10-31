@@ -39,7 +39,12 @@ int main(void)
 	for (int i = 0; i < 6; i++)
 		for (int j = 0; j < 4; j++) {
 			display->vertices().push_back(Vector3D(coords[i][j][0], coords[i][j][1], coords[i][j][2]));
-			display->colours().push_back(Vector3D(colours[i][0], colours[i][1], colours[i][2]));
+			if (j == 0)
+				display->colours().push_back(Vector3D());
+			else if (j == 2)
+				display->colours().push_back(Vector3D(1, 1, 1));
+			else
+				display->colours().push_back(Vector3D(colours[i][0], colours[i][1], colours[i][2]));
 		}
 	float len = 2.f;
 	display->vertices().push_back(Vector3D());
