@@ -57,7 +57,7 @@ int main(void)
 
 	// Projection
 	Matrix4x4 mp;
-	mp.lookAt(Vector3D(0, 0, 3), Vector3D(), Vector3D(0, 1, 0));
+	mp.lookAt(Vector3D(1.2, 1.2, 1.2), Vector3D(), Vector3D(0, 1, 0));
 	mp.perspective(PI * 45.f / 180.f, 800.f / 600.f, 1.f, 10000.0);
 
 start:
