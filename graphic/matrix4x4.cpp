@@ -1,4 +1,5 @@
 #include <cmath>
+#include "graphic.h"
 #include "matrix4x4.h"
 
 using namespace std;
@@ -65,13 +66,16 @@ void Matrix4x4::translate(const Vector3D& v)
 
 void Matrix4x4::perspective(float fov, float aspect, float near, float far)
 {
-	float uh = 1.f / tan(0.5f * fov);
-	float d = far / (far - near);
+	float radians = fov / 2.0f * PI / 180.0f;
+	float sine = sin(radians);
+	float cosine = cos(radians);
+	float cotan = cosine / sine;
+	float clip = far - near;
 	float m[16] = {
-		uh / aspect, 0.f, 0.f, 0.f,
-		0.f, uh, 0.f, 0.f,
-		0.f, 0.f, d, -near * d,
-		0.f, 0.f, 1.f, 0.f,
+		cotan / aspect, 0.f, 0.f, 0.f,
+		0.f, cotan, 0.f, 0.f,
+		0.f, 0.f, -(near + far) / clip, -1.0f,
+		0.f, 0.f, -(2.0f * near * far) / clip, 0.f,
 	};
 	(*this) *= Matrix4x4(m);
 }
@@ -79,8 +83,8 @@ void Matrix4x4::perspective(float fov, float aspect, float near, float far)
 void Matrix4x4::lookAt(const Vector3D& eye, const Vector3D& center, const Vector3D& up)
 {
 	// http://www.cs.virginia.edu/~gfx/Courses/1999/intro.fall99.html/lookat.html
-	Vector3D f = (center - eye).normalized(), us = up.normalized();
-	Vector3D s = Vector3D::crossProduct(f, us);
+	Vector3D f = (center - eye).normalized();//, us = up.normalized();
+	Vector3D s = Vector3D::crossProduct(f, up).normalized();
 	Vector3D u = Vector3D::crossProduct(s, f);
 	float m[16] = {
 		s.x(), u.x(), -f.x(), 0.f,
@@ -88,8 +92,8 @@ void Matrix4x4::lookAt(const Vector3D& eye, const Vector3D& center, const Vector
 		s.z(), u.z(), -f.z(), 0.f,
 		0.f, 0.f, 0.f, 1.f,
 	};
-	translate(-eye);
 	(*this) *= Matrix4x4(m);
+	translate(-eye);
 }
 
 Matrix4x4& Matrix4x4::operator*=(const Matrix4x4& m)
@@ -99,7 +103,7 @@ Matrix4x4& Matrix4x4::operator*=(const Matrix4x4& m)
 		for (int c = 0; c < 4; c++) {
 			*(v + r + 4 * c) = 0.f;
 			for (int i = 0; i < 4; i++)
-				*(v + r + 4 * c) += m(r, i) * (*this)(i, c);
+				*(v + r + 4 * c) += (*this)(r, i) * m(i, c);
 		}
 	memcpy(mat, v, 16 * sizeof(float));
 	return *this;
@@ -107,8 +111,8 @@ Matrix4x4& Matrix4x4::operator*=(const Matrix4x4& m)
 
 const Matrix4x4 operator*(const Matrix4x4& m1, const Matrix4x4& m2)
 {
-	Matrix4x4 m(m2);
-	m *= m1;
+	Matrix4x4 m(m1);
+	m *= m2;
 	return m;
 }
 

@@ -36,8 +36,8 @@ void Display::resize(const int width, const int height)
 {
 	buffer.resize(width, height);
 	data.mapping = Matrix4x4();
-	data.mapping.scale(Vector3D(width / 2, -height / 2, 1.f));
 	data.mapping.translate(Vector3D(width / 2, height / 2, 0.f));
+	data.mapping.scale(Vector3D(width / 2, -height / 2, -1.f));
 	data.updateMVP();
 }
 
@@ -48,12 +48,16 @@ void Display::clear(void)
 		*(buffer.depth + i) = -INFINITY;
 }
 
+#include <iostream>
 inline void Display::plot(int x, int y, bool reverse, float depth, const Vector3D& colour)
 {
 	if (reverse)
 		swap(x, y);
 	if (x < 0 || y < 0 || x >= width() || y >= height() || depth > 0)
 		return;
+	if (depth < -1 || depth >= 0)
+		return;
+	//cout << depth << endl;
 	if (*(buffer.depth + y * width() + x) <= depth) {
 		*(buffer.data + y * width() + x) = colour.toColour();
 		*(buffer.depth + y * width() + x) = depth;
@@ -445,6 +449,23 @@ void Display::drawLine(uint32_t index1, uint32_t index2)
 void Display::drawTriangle(uint32_t index1, uint32_t index2, uint32_t index3)
 {
 	Vector3D v1 = map(vertex(index1)), v2 = map(vertex(index2)), v3 = map(vertex(index3));
+#if 0
+	Vector3D v1 = data.modelView * vertex(index1), v2 = data.modelView * vertex(index2), v3 = data.modelView * vertex(index3);
+	cout << "After modelView:" << endl;
+	cout << "V1, X: " << v1.x() << ", Y: " << v1.y() << ", Z: " << v1.z() << endl;
+	cout << "V2, X: " << v2.x() << ", Y: " << v2.y() << ", Z: " << v2.z() << endl;
+	cout << "V3, X: " << v3.x() << ", Y: " << v3.y() << ", Z: " << v3.z() << endl;
+	v1 = data.projection * v1, v2 = data.projection * v2, v3 = data.projection * v3;
+	cout << "After projection:" << endl;
+	cout << "V1, X: " << v1.x() << ", Y: " << v1.y() << ", Z: " << v1.z() << endl;
+	cout << "V2, X: " << v2.x() << ", Y: " << v2.y() << ", Z: " << v2.z() << endl;
+	cout << "V3, X: " << v3.x() << ", Y: " << v3.y() << ", Z: " << v3.z() << endl;
+	v1 = data.mapping * v1, v2 = data.mapping * v2, v3 = data.mapping * v3;
+	cout << "After mapping:" << endl;
+	cout << "V1, X: " << v1.x() << ", Y: " << v1.y() << ", Z: " << v1.z() << endl;
+	cout << "V2, X: " << v2.x() << ", Y: " << v2.y() << ", Z: " << v2.z() << endl;
+	cout << "V3, X: " << v3.x() << ", Y: " << v3.y() << ", Z: " << v3.z() << endl;
+#endif
 	// swap to clockwise order, with index1 at the top
 	if (v1.y() > v2.y()) {
 		swap(v1, v2);

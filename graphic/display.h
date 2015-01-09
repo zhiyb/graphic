@@ -46,7 +46,7 @@ protected:
 
 private:
 	struct Data {
-		void updateMVP(void) {mvp = mapping * projection * modelView;}
+		void updateMVP(void) {mvp = mapping * (projection * modelView);}
 		std::vector<Vector3D> vertices, colours;
 		Matrix4x4 mvp;
 		Matrix4x4 modelView, projection, mapping;
